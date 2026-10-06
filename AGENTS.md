@@ -8,3 +8,4 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+- UniStretch stores user-owned wellness records in Lovable Cloud tables with RLS; keep client writes scoped to the signed-in user so private data stays separated.
