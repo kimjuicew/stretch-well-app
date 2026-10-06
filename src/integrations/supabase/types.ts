@@ -14,7 +14,126 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      app_reviews: {
+        Row: {
+          created_at: string
+          feedback: string
+          id: string
+          rating: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          feedback: string
+          id?: string
+          rating: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          feedback?: string
+          id?: string
+          rating?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      doctor_bookings: {
+        Row: {
+          appointment_time: string
+          created_at: string
+          doctor_name: string
+          id: string
+          notes: string | null
+          specialty: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          appointment_time: string
+          created_at?: string
+          doctor_name: string
+          id?: string
+          notes?: string | null
+          specialty: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          appointment_time?: string
+          created_at?: string
+          doctor_name?: string
+          id?: string
+          notes?: string | null
+          specialty?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          current_streak_days: number
+          display_name: string | null
+          id: string
+          last_stretch_at: string | null
+          reminder_interval_minutes: number
+          streak_points: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          current_streak_days?: number
+          display_name?: string | null
+          id: string
+          last_stretch_at?: string | null
+          reminder_interval_minutes?: number
+          streak_points?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          current_streak_days?: number
+          display_name?: string | null
+          id?: string
+          last_stretch_at?: string | null
+          reminder_interval_minutes?: number
+          streak_points?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      stretch_sessions: {
+        Row: {
+          completed_at: string
+          id: string
+          minutes_sitting: number
+          points_awarded: number
+          stretch_type: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string
+          id?: string
+          minutes_sitting?: number
+          points_awarded?: number
+          stretch_type?: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string
+          id?: string
+          minutes_sitting?: number
+          points_awarded?: number
+          stretch_type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
