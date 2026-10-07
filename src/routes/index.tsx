@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Activity,
@@ -262,6 +262,20 @@ function UniStretchApp() {
     },
   });
 
+  const adminRoleQuery = useQuery({
+    queryKey: ["unistretch", "admin-role", user?.id],
+    enabled: Boolean(user?.id),
+    queryFn: async () => {
+      if (!user) return false;
+      const { data, error } = await supabase.rpc("has_role", {
+        _user_id: user.id,
+        _role: "admin",
+      });
+      if (error) throw error;
+      return data;
+    },
+  });
+
   const profile = profileQuery.data;
   const reminderMinutes = profile?.reminder_interval_minutes ?? 45;
   const sittingMinutes = Math.floor(secondsSitting / 60);
@@ -476,6 +490,11 @@ function UniStretchApp() {
               </div>
               {user ? (
                 <div className="flex items-center gap-2">
+                  {adminRoleQuery.data ? (
+                    <Button asChild variant="soft" size="sm">
+                      <Link to="/admin/feedback">Admin feedback</Link>
+                    </Button>
+                  ) : null}
                   <Badge variant="secondary" className="hidden gap-1 rounded-full px-3 py-1 sm:inline-flex">
                     <UserRound className="size-3" /> {profile?.display_name ?? user.email}
                   </Badge>
