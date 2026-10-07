@@ -52,8 +52,13 @@ import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
 
 const authSchema = z.object({
-  displayName: z.string().trim().max(80, "Name must be 80 characters or less").optional(),
-  email: z.string().trim().email("Enter a valid email address").max(255),
+  username: z
+    .string()
+    .trim()
+    .toLowerCase()
+    .min(3, "Username must be at least 3 characters")
+    .max(30, "Username must be 30 characters or less")
+    .regex(/^[a-z0-9_]+$/, "Use lowercase letters, numbers, or underscores only"),
   password: z.string().min(8, "Password must be at least 8 characters").max(72),
 });
 
@@ -161,9 +166,8 @@ function UniStretchApp() {
   const [authMode, setAuthMode] = useState<"login" | "signup">("login");
   const [authError, setAuthError] = useState("");
   const [authNotice, setAuthNotice] = useState("");
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [displayName, setDisplayName] = useState("");
   const [secondsSitting, setSecondsSitting] = useState(42 * 60);
   const [isRunning, setIsRunning] = useState(true);
   const [snoozedUntil, setSnoozedUntil] = useState<number | null>(null);
@@ -403,28 +407,30 @@ function UniStretchApp() {
     setAuthNotice("");
 
     try {
-      const parsed = authSchema.parse({ displayName, email, password });
+      const parsed = authSchema.parse({ username, password });
+      const syntheticEmail = `${parsed.username}@app.local`;
       if (authMode === "signup") {
-        const { error } = await supabase.auth.signUp({
-          email: parsed.email,
+        const { data, error } = await supabase.auth.signUp({
+          email: syntheticEmail,
           password: parsed.password,
           options: {
             emailRedirectTo: window.location.origin,
-            data: { full_name: parsed.displayName || parsed.email.split("@")[0] },
+            data: { full_name: parsed.username, username: parsed.username },
           },
         });
         if (error) throw error;
-        setAuthNotice("Check your email to confirm your account, then sign in.");
+        if (data.user) await ensureProfile(data.user.id, parsed.username, parsed.username);
+        setAuthNotice("Account created. You can now use your username to sign in.");
         return;
       }
 
       const { data, error } = await supabase.auth.signInWithPassword({
-        email: parsed.email,
+        email: syntheticEmail,
         password: parsed.password,
       });
       if (error) throw error;
       if (data.user) {
-        await ensureProfile(data.user.id, data.user.email?.split("@")[0] ?? "Member");
+        await ensureProfile(data.user.id, parsed.username, parsed.username);
       }
       setIsAuthDialogOpen(false);
     } catch (error) {
@@ -854,15 +860,17 @@ function UniStretchApp() {
             </DialogDescription>
           </DialogHeader>
           <form className="space-y-4" onSubmit={handleAuthSubmit}>
-            {authMode === "signup" ? (
-              <div className="space-y-2">
-                <Label htmlFor="display-name">Display name</Label>
-                <Input id="display-name" value={displayName} onChange={(event) => setDisplayName(event.target.value)} className="rounded-2xl" />
-              </div>
-            ) : null}
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" value={email} onChange={(event) => setEmail(event.target.value)} className="rounded-2xl" />
+              <Label htmlFor="username">Username</Label>
+              <Input
+                id="username"
+                autoCapitalize="none"
+                autoComplete="username"
+                value={username}
+                maxLength={30}
+                onChange={(event) => setUsername(event.target.value.toLowerCase())}
+                className="rounded-2xl"
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
@@ -874,6 +882,7 @@ function UniStretchApp() {
               {authMode === "login" ? "Login" : "Sign up"}
             </Button>
           </form>
+          <p className="text-center text-xs text-muted-foreground">Username accounts cannot use email password reset.</p>
           <Button variant="soft" onClick={handleGoogleSignIn}>
             Continue with Google
           </Button>
@@ -886,12 +895,9 @@ function UniStretchApp() {
   );
 }
 
-async function ensureProfile(userId: string, fallbackName: string) {
+async function ensureProfile(userId: string, fallbackName: string, username?: string) {
   const { error } = await supabase.from("profiles").upsert(
-    {
-      id: userId,
-      display_name: fallbackName,
-    },
+    { id: userId, display_name: fallbackName, username: username ?? null },
     { onConflict: "id", ignoreDuplicates: true },
   );
   if (error) throw error;

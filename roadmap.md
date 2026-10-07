@@ -2,3 +2,4 @@
 - Connect user profiles, bookings, streak activity, and reviews to Lovable Cloud database.
 - Verify preview build health after changes.
 - Add a secure admin account area for viewing all user feedback, using server-validated roles.
+- Configure username-only accounts; email confirmation/reset is unavailable by design.

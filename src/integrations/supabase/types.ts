@@ -84,6 +84,7 @@ export type Database = {
           reminder_interval_minutes: number
           streak_points: number
           updated_at: string
+          username: string | null
         }
         Insert: {
           created_at?: string
@@ -94,6 +95,7 @@ export type Database = {
           reminder_interval_minutes?: number
           streak_points?: number
           updated_at?: string
+          username?: string | null
         }
         Update: {
           created_at?: string
@@ -104,6 +106,7 @@ export type Database = {
           reminder_interval_minutes?: number
           streak_points?: number
           updated_at?: string
+          username?: string | null
         }
         Relationships: []
       }
