@@ -8,6 +8,20 @@
       "when": 1791289304169,
       "tag": "0000_create_unistretch_core",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1791343146554,
+      "tag": "0001_add_admin_feedback_access",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1791343245641,
+      "tag": "0002_tighten_function_permissions",
+      "breakpoints": true
     }
   ]
 }
