@@ -9,6 +9,7 @@ import {
   Clock3,
   Flame,
   HeartPulse,
+  House,
   LogOut,
   Pause,
   Play,
@@ -186,6 +187,10 @@ function UniStretchApp() {
   const [reviewError, setReviewError] = useState("");
   const [reviewMessage, setReviewMessage] = useState("");
   const [isAuthDialogOpen, setIsAuthDialogOpen] = useState(false);
+
+  function scrollToSection(id: string) {
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
 
   useEffect(() => {
     let mounted = true;
@@ -479,29 +484,29 @@ function UniStretchApp() {
   }
 
   return (
-    <main className="min-h-screen overflow-hidden bg-background text-foreground">
-      <section className="relative border-b border-border bg-[image:var(--gradient-hero)]">
+    <main className="min-h-screen overflow-hidden bg-background pb-24 text-foreground md:pb-0">
+      <section id="home" className="relative scroll-mt-4 border-b border-border bg-[image:var(--gradient-hero)]">
         <div className="absolute inset-x-0 top-0 h-2 bg-[image:var(--gradient-strip)]" />
-        <div className="mx-auto grid min-h-[92vh] max-w-7xl gap-8 px-4 pb-10 pt-6 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:px-8">
-          <div className="flex flex-col justify-between gap-10">
-            <header className="flex items-center justify-between gap-4">
-              <div className="flex items-center gap-3">
-                <div className="flex size-11 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-[var(--shadow-soft)]">
+        <div className="mx-auto grid min-h-[92vh] max-w-7xl gap-8 px-4 pb-10 pt-5 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:px-8 lg:pt-6">
+          <div className="flex flex-col justify-between gap-7 lg:gap-10">
+            <header className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-3xl border border-surface/70 bg-surface/70 p-2.5 shadow-[var(--shadow-card)] backdrop-blur-xl sm:p-3 lg:border-transparent lg:bg-transparent lg:p-0 lg:shadow-none">
+              <div className="flex min-w-0 items-center gap-3">
+                <div className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-[var(--shadow-soft)]">
                   <Activity className="size-5" />
                 </div>
-                <div>
-                  <p className="text-xl font-bold">UniStretch</p>
-                  <p className="text-xs font-medium uppercase text-muted-foreground">OfficeCheck prototype</p>
+                <div className="min-w-0">
+                  <p className="truncate text-lg font-extrabold sm:text-xl">UniStretch</p>
+                  <p className="truncate text-[10px] font-bold uppercase text-muted-foreground sm:text-xs">OfficeCheck prototype</p>
                 </div>
               </div>
               {user ? (
-                <div className="flex items-center gap-2">
+                <div className="flex shrink-0 items-center gap-1 sm:gap-2">
                   {adminRoleQuery.data ? (
                     <Button asChild variant="soft" size="sm">
                       <Link to="/admin/feedback">Admin feedback</Link>
                     </Button>
                   ) : null}
-                  <Badge variant="secondary" className="hidden gap-1 rounded-full px-3 py-1 sm:inline-flex">
+                  <Badge variant="secondary" className="hidden gap-1 rounded-full px-3 py-1 md:inline-flex">
                     <UserRound className="size-3" /> {profile?.display_name ?? user.email}
                   </Badge>
                   <Button variant="ghost" size="sm" onClick={handleSignOut} aria-label="Sign out">
@@ -515,30 +520,47 @@ function UniStretchApp() {
               )}
             </header>
 
-            <div className="max-w-2xl space-y-7">
-              <Badge className="gap-2 rounded-full bg-event text-event-foreground shadow-[var(--shadow-soft)]">
+            <div className="max-w-2xl space-y-5 sm:space-y-7">
+              <Badge className="gap-2 rounded-full bg-event px-3 py-1.5 text-event-foreground shadow-[var(--shadow-soft)]">
                 <Sparkles className="size-3.5" /> Health check up event this Friday
               </Badge>
-              <div className="space-y-5">
-                <h1 className="max-w-3xl text-5xl font-black leading-[0.95] sm:text-6xl lg:text-7xl">
-                  Move before office syndrome moves in.
+              <div className="space-y-4 sm:space-y-5">
+                <h1 className="max-w-3xl text-4xl font-black leading-[1.06] sm:text-6xl lg:text-7xl lg:leading-[0.95]">
+                  Move before office syndrome <span className="text-primary">moves in.</span>
                 </h1>
-                <p className="max-w-xl text-lg leading-8 text-muted-foreground">
+                <p className="max-w-xl text-[15px] font-medium leading-7 text-muted-foreground sm:text-lg sm:leading-8">
                   UniStretch tracks long sitting, sends stretch reminders, rewards healthy streaks,
                   and connects office workers with guided videos and online doctors.
                 </p>
               </div>
-              <div className="flex flex-col gap-3 sm:flex-row">
-                <Button variant="hero" size="xl" onClick={() => setIsAuthDialogOpen(true)}>
+              <div className="grid gap-3 sm:flex sm:flex-row">
+                <Button className="h-14 rounded-2xl text-base" variant="hero" size="xl" onClick={() => (user ? scrollToSection("timer") : setIsAuthDialogOpen(true))}>
                   Start healthy streak <ArrowRight className="size-4" />
                 </Button>
-                <Button variant="outline" size="xl" onClick={() => document.getElementById("booking")?.scrollIntoView({ behavior: "smooth" })}>
+                <Button className="h-12 rounded-2xl bg-surface/60 backdrop-blur" variant="outline" size="xl" onClick={() => scrollToSection("booking")}>
                   Book online doctor
                 </Button>
               </div>
+
+              <div className="rounded-3xl border border-surface/80 bg-surface/80 p-4 shadow-[var(--shadow-elevated)] backdrop-blur-xl lg:hidden">
+                <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4">
+                  <div className="min-w-0">
+                    <p className="text-xs font-bold uppercase text-muted-foreground">Current sitting block</p>
+                    <p className="mt-1 text-4xl font-black tabular-nums">{formattedTime}</p>
+                  </div>
+                  <Button variant="soft" size="icon" className="size-12 shrink-0 rounded-2xl" onClick={() => setIsRunning((value) => !value)} aria-label={isRunning ? "Pause timer" : "Start timer"}>
+                    {isRunning ? <Pause className="size-5" /> : <Play className="size-5" />}
+                  </Button>
+                </div>
+                <Progress value={sittingProgress} className="mt-4 h-2.5 bg-muted" />
+                <div className="mt-3 flex items-center justify-between gap-3 text-xs font-semibold text-muted-foreground">
+                  <span>{Math.max(0, reminderMinutes - sittingMinutes)} min until break</span>
+                  <span>Goal {reminderMinutes} min</span>
+                </div>
+              </div>
             </div>
 
-            <div className="grid gap-3 sm:grid-cols-3">
+            <div className="hidden gap-3 sm:grid sm:grid-cols-3">
               {eventHighlights.map((item) => (
                 <div key={item} className="rounded-2xl border border-border bg-surface/80 p-4 shadow-[var(--shadow-card)] backdrop-blur">
                   <CheckCircle2 className="mb-3 size-5 text-success" />
@@ -548,7 +570,7 @@ function UniStretchApp() {
             </div>
           </div>
 
-          <div className="relative flex items-end">
+          <div className="relative hidden items-end lg:flex">
             <div className="relative w-full overflow-hidden rounded-[2rem] border border-border bg-surface shadow-[var(--shadow-elevated)]">
               <img
                 src={wellnessImage}
@@ -574,7 +596,7 @@ function UniStretchApp() {
         </div>
       </section>
 
-      <section className="mx-auto grid max-w-7xl gap-6 px-4 py-8 sm:px-6 lg:grid-cols-[1fr_0.75fr] lg:px-8">
+      <section id="timer" className="mx-auto grid max-w-7xl scroll-mt-20 gap-6 px-4 py-8 sm:px-6 lg:grid-cols-[1fr_0.75fr] lg:px-8">
         <Card className="rounded-3xl border-border bg-card shadow-[var(--shadow-card)]">
           <CardHeader className="gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
@@ -669,7 +691,7 @@ function UniStretchApp() {
         </Card>
       </section>
 
-      <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+      <section id="stretch" className="mx-auto max-w-7xl scroll-mt-20 px-4 py-8 sm:px-6 lg:px-8">
         <div className="mb-5 flex items-end justify-between gap-4">
           <div>
             <p className="text-sm font-bold uppercase text-primary">Guided stretch clips</p>
@@ -702,7 +724,7 @@ function UniStretchApp() {
         </div>
       </section>
 
-      <section id="booking" className="mx-auto grid max-w-7xl gap-6 px-4 py-8 sm:px-6 lg:grid-cols-[0.9fr_1.1fr] lg:px-8">
+      <section id="booking" className="mx-auto grid max-w-7xl scroll-mt-20 gap-6 px-4 py-8 sm:px-6 lg:grid-cols-[0.9fr_1.1fr] lg:px-8">
         <Card className="rounded-3xl border-border bg-card shadow-[var(--shadow-card)]">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-2xl">
@@ -776,7 +798,7 @@ function UniStretchApp() {
         </Card>
       </section>
 
-      <section className="mx-auto grid max-w-7xl gap-6 px-4 py-8 sm:px-6 lg:grid-cols-[0.8fr_1.2fr] lg:px-8">
+      <section id="profile" className="mx-auto grid max-w-7xl scroll-mt-20 gap-6 px-4 py-8 sm:px-6 lg:grid-cols-[0.8fr_1.2fr] lg:px-8">
         <Card className="rounded-3xl border-border bg-card shadow-[var(--shadow-card)]">
           <CardHeader>
             <CardTitle className="text-2xl">Profile settings</CardTitle>
@@ -850,6 +872,26 @@ function UniStretchApp() {
           </CardContent>
         </Card>
       </section>
+
+      <nav aria-label="Mobile app navigation" className="fixed inset-x-3 bottom-3 z-40 grid grid-cols-4 rounded-3xl border border-surface/80 bg-surface/90 p-1.5 shadow-[var(--shadow-mobile-nav)] backdrop-blur-xl md:hidden">
+        {[
+          { id: "home", label: "Home", icon: House },
+          { id: "stretch", label: "Stretch", icon: Activity },
+          { id: "booking", label: "Doctors", icon: Stethoscope },
+          { id: "profile", label: "Profile", icon: UserRound },
+        ].map(({ id, label, icon: Icon }) => (
+          <Button
+            key={id}
+            type="button"
+            variant={id === "home" ? "soft" : "ghost"}
+            onClick={() => scrollToSection(id)}
+            className="h-14 min-w-0 flex-col gap-1 rounded-2xl px-1 text-[10px] font-bold"
+          >
+            <Icon className="size-5" />
+            <span className="truncate">{label}</span>
+          </Button>
+        ))}
+      </nav>
 
       <Dialog open={isAuthDialogOpen} onOpenChange={setIsAuthDialogOpen}>
         <DialogContent className="rounded-3xl border-border bg-card">
