@@ -60,7 +60,7 @@
 
 :root {
   --radius: 1rem;
-  --font-body: "Manrope", "Noto Sans Thai", system-ui, sans-serif;
+  --font-body: "Plus Jakarta Sans", "Noto Sans Thai", system-ui, sans-serif;
   --background: oklch(0.985 0.018 167);
   --foreground: oklch(0.205 0.045 184);
   --card: oklch(0.997 0.01 170);
@@ -110,6 +110,7 @@
   --shadow-card: 0 18px 50px -32px color-mix(in oklab, var(--foreground) 35%, transparent);
   --shadow-soft: 0 18px 42px -24px color-mix(in oklab, var(--primary) 55%, transparent);
   --shadow-elevated: 0 30px 80px -40px color-mix(in oklab, var(--foreground) 45%, transparent);
+  --shadow-mobile-nav: 0 18px 50px -20px color-mix(in oklab, var(--foreground) 38%, transparent);
 }
 
 .dark {
@@ -170,6 +171,7 @@
     background-color: var(--color-background);
     color: var(--color-foreground);
     font-family: var(--font-body);
+    letter-spacing: 0;
   }
 
   button,
