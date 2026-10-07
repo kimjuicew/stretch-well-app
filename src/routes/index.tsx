@@ -896,11 +896,8 @@ function UniStretchApp() {
 }
 
 async function ensureProfile(userId: string, fallbackName: string, username?: string) {
-  const profileInput = username
-    ? { id: userId, display_name: fallbackName, username }
-    : { id: userId, display_name: fallbackName };
   const { error } = await supabase.from("profiles").upsert(
-    profileInput,
+    { id: userId, display_name: fallbackName, username: username ?? null },
     { onConflict: "id", ignoreDuplicates: true },
   );
   if (error) throw error;
