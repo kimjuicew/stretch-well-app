@@ -2,6 +2,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link, redirect, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { ArrowLeft, BarChart3, LogOut, MessageSquareText, ShieldCheck, Star } from "lucide-react";
+import type { ReactNode } from "react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -144,7 +145,7 @@ function AdminFeedbackPage() {
   );
 }
 
-function Metric({ title, value, icon }: { title: string; value: string; icon: React.ReactNode }) {
+function Metric({ title, value, icon }: { title: string; value: string; icon: ReactNode }) {
   return (
     <Card className="rounded-3xl border-border shadow-[var(--shadow-card)]">
       <CardContent className="flex items-center justify-between gap-4 p-5">
