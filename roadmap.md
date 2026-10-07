@@ -1,3 +1,4 @@
 - Build UniStretch English prototype at / with login/signup, home announcements, sit timer, stretch videos, online doctor booking, streak points, profile reminders, and validated feedback.
 - Connect user profiles, bookings, streak activity, and reviews to Lovable Cloud database.
 - Verify preview build health after changes.
+- Add a secure admin account area for viewing all user feedback, using server-validated roles.
