@@ -167,7 +167,14 @@ function UniStretchApp() {
   const [secondsSitting, setSecondsSitting] = useState(42 * 60);
   const [isRunning, setIsRunning] = useState(true);
   const [snoozedUntil, setSnoozedUntil] = useState<number | null>(null);
-  const [selectedDoctor, setSelectedDoctor] = useState(doctors[0]);
+  const [selectedDoctor, setSelectedDoctor] = useState<(typeof doctors)[number]>(
+    doctors[0] ?? {
+      name: "Dr. Maya Chen",
+      specialty: "Physiotherapy",
+      next: "Today, 15:30",
+      iso: "2026-10-06T15:30:00+07:00",
+    },
+  );
   const [bookingNotes, setBookingNotes] = useState("");
   const [bookingMessage, setBookingMessage] = useState("");
   const [reviewRating, setReviewRating] = useState(0);
@@ -704,19 +711,22 @@ function UniStretchApp() {
           <CardContent className="space-y-5">
             <div className="grid gap-3 md:grid-cols-3">
               {doctors.map((doctor) => (
-                <button
+                <Button
                   key={doctor.name}
                   type="button"
+                  variant="soft"
                   onClick={() => setSelectedDoctor(doctor)}
                   className={cn(
-                    "rounded-3xl border p-4 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                    "h-auto min-h-32 whitespace-normal rounded-3xl border p-4 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                     selectedDoctor.name === doctor.name ? "border-primary bg-primary/10" : "border-border bg-surface-soft hover:bg-muted",
                   )}
                 >
-                  <p className="font-black">{doctor.name}</p>
-                  <p className="mt-1 text-sm text-muted-foreground">{doctor.specialty}</p>
-                  <p className="mt-3 text-sm font-bold text-primary">{doctor.next}</p>
-                </button>
+                  <span className="block w-full">
+                    <span className="block font-black">{doctor.name}</span>
+                    <span className="mt-1 block text-sm text-muted-foreground">{doctor.specialty}</span>
+                    <span className="mt-3 block text-sm font-bold text-primary">{doctor.next}</span>
+                  </span>
+                </Button>
               ))}
             </div>
             <div className="space-y-2">
