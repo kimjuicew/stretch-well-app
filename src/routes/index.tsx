@@ -194,7 +194,7 @@ function UniStretchApp() {
   const [isAuthDialogOpen, setIsAuthDialogOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<AppTab>("home");
 
-  function openTab(id: AppTab, targetId = id) {
+  function openTab(id: AppTab, targetId: string = id) {
     setActiveTab(id);
     window.setTimeout(() => {
       document.getElementById(targetId)?.scrollIntoView({ behavior: "smooth", block: "start" });
