@@ -99,6 +99,7 @@ const stretchVideos = [
     tag: "Neck & shoulder",
     description: "Slow side bends and chin tucks to reduce screen posture tension.",
     accent: "bg-trust/15 text-trust",
+    youtubeId: "2NOsE-VPpkE",
   },
   {
     title: "Lower back flow",
@@ -106,6 +107,7 @@ const stretchVideos = [
     tag: "Lumbar care",
     description: "Seated cat-cow, hip hinge, and gentle twists for long sitting blocks.",
     accent: "bg-success/15 text-success",
+    youtubeId: "0wAw1-1MHa4",
   },
   {
     title: "Wrist break",
@@ -113,8 +115,11 @@ const stretchVideos = [
     tag: "Keyboard relief",
     description: "Forearm glides and palm stretches for typing-heavy workdays.",
     accent: "bg-event/20 text-event-foreground",
+    youtubeId: "fdD7CgN5FGg",
   },
 ];
+
+type AppTab = "home" | "stretch" | "booking" | "profile";
 
 const doctors = [
   {
@@ -187,9 +192,13 @@ function UniStretchApp() {
   const [reviewError, setReviewError] = useState("");
   const [reviewMessage, setReviewMessage] = useState("");
   const [isAuthDialogOpen, setIsAuthDialogOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<AppTab>("home");
 
-  function scrollToSection(id: string) {
-    document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  function openTab(id: AppTab, targetId: string = id) {
+    setActiveTab(id);
+    window.setTimeout(() => {
+      document.getElementById(targetId)?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 0);
   }
 
   useEffect(() => {
@@ -466,8 +475,8 @@ function UniStretchApp() {
   }
 
   function handleCompleteStretch() {
-    if (!requireSignedIn()) return;
-    completeStretchMutation.mutate();
+    openTab("stretch");
+    if (user) completeStretchMutation.mutate();
   }
 
   function handleBooking() {
@@ -485,7 +494,7 @@ function UniStretchApp() {
 
   return (
     <main className="min-h-screen overflow-hidden bg-background pb-24 text-foreground md:pb-0">
-      <section id="home" className="relative scroll-mt-4 border-b border-border bg-[image:var(--gradient-hero)]">
+      <section id="home" className={cn("relative scroll-mt-4 border-b border-border bg-[image:var(--gradient-hero)]", activeTab !== "home" && "hidden md:block")}>
         <div className="absolute inset-x-0 top-0 h-2 bg-[image:var(--gradient-strip)]" />
         <div className="mx-auto grid min-h-[92vh] max-w-7xl gap-8 px-4 pb-10 pt-5 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:px-8 lg:pt-6">
           <div className="flex flex-col justify-between gap-7 lg:gap-10">
@@ -534,10 +543,10 @@ function UniStretchApp() {
                 </p>
               </div>
               <div className="grid gap-3 sm:flex sm:flex-row">
-                <Button className="h-14 rounded-2xl text-base" variant="hero" size="xl" onClick={() => (user ? scrollToSection("timer") : setIsAuthDialogOpen(true))}>
+                <Button className="h-14 rounded-2xl text-base" variant="hero" size="xl" onClick={() => (user ? openTab("home", "timer") : setIsAuthDialogOpen(true))}>
                   Start healthy streak <ArrowRight className="size-4" />
                 </Button>
-                <Button className="h-12 rounded-2xl bg-surface/60 backdrop-blur" variant="outline" size="xl" onClick={() => scrollToSection("booking")}>
+                <Button className="h-12 rounded-2xl bg-surface/60 backdrop-blur" variant="outline" size="xl" onClick={() => openTab("booking")}>
                   Book online doctor
                 </Button>
               </div>
@@ -596,7 +605,8 @@ function UniStretchApp() {
         </div>
       </section>
 
-      <section id="timer" className="mx-auto grid max-w-7xl scroll-mt-20 gap-6 px-4 py-8 sm:px-6 lg:grid-cols-[1fr_0.75fr] lg:px-8">
+      <section id="timer" className={cn("mx-auto max-w-7xl scroll-mt-20 px-4 py-8 sm:px-6 lg:px-8", activeTab !== "home" && "hidden md:block")}>
+        <div className="grid gap-6 lg:grid-cols-[1fr_0.75fr]">
         <Card className="rounded-3xl border-border bg-card shadow-[var(--shadow-card)]">
           <CardHeader className="gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
@@ -689,27 +699,31 @@ function UniStretchApp() {
             </p>
           </CardContent>
         </Card>
+        </div>
       </section>
 
-      <section id="stretch" className="mx-auto max-w-7xl scroll-mt-20 px-4 py-8 sm:px-6 lg:px-8">
+      <section id="stretch" className={cn("mx-auto min-h-[calc(100vh-6rem)] max-w-7xl scroll-mt-20 px-4 py-6 sm:px-6 md:py-8 lg:px-8", activeTab !== "stretch" && "hidden md:block")}>
         <div className="mb-5 flex items-end justify-between gap-4">
           <div>
             <p className="text-sm font-bold uppercase text-primary">Guided stretch clips</p>
             <h2 className="mt-2 text-3xl font-black">Quick relief videos</h2>
           </div>
           <Badge variant="outline" className="hidden rounded-full px-3 py-1 sm:inline-flex">
-            <Video className="mr-1 size-3" /> Prototype library
+            <Video className="mr-1 size-3" /> YouTube library
           </Badge>
         </div>
         <div className="grid gap-4 md:grid-cols-3">
           {stretchVideos.map((video) => (
             <Card key={video.title} className="overflow-hidden rounded-3xl border-border bg-card shadow-[var(--shadow-card)]">
-              <div className="aspect-video bg-[image:var(--gradient-video)] p-5">
-                <div className="flex h-full items-center justify-center rounded-3xl border border-border bg-surface/70 backdrop-blur">
-                  <div className="flex size-16 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-[var(--shadow-soft)]">
-                    <Play className="size-7 fill-current" />
-                  </div>
-                </div>
+              <div className="aspect-video overflow-hidden bg-muted">
+                <iframe
+                  className="h-full w-full"
+                  src={`https://www.youtube-nocookie.com/embed/${video.youtubeId}`}
+                  title={`${video.title} guided stretch video`}
+                  loading="lazy"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  allowFullScreen
+                />
               </div>
               <CardContent className="space-y-3 p-5">
                 <div className="flex items-center justify-between gap-2">
@@ -724,7 +738,8 @@ function UniStretchApp() {
         </div>
       </section>
 
-      <section id="booking" className="mx-auto grid max-w-7xl scroll-mt-20 gap-6 px-4 py-8 sm:px-6 lg:grid-cols-[0.9fr_1.1fr] lg:px-8">
+      <section id="booking" className={cn("mx-auto min-h-[calc(100vh-6rem)] max-w-7xl scroll-mt-20 px-4 py-6 sm:px-6 md:py-8 lg:px-8", activeTab !== "booking" && "hidden md:block")}>
+        <div className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
         <Card className="rounded-3xl border-border bg-card shadow-[var(--shadow-card)]">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-2xl">
@@ -796,9 +811,11 @@ function UniStretchApp() {
             <BookingList bookings={bookingsQuery.data ?? []} />
           </CardContent>
         </Card>
+        </div>
       </section>
 
-      <section id="profile" className="mx-auto grid max-w-7xl scroll-mt-20 gap-6 px-4 py-8 sm:px-6 lg:grid-cols-[0.8fr_1.2fr] lg:px-8">
+      <section id="profile" className={cn("mx-auto min-h-[calc(100vh-6rem)] max-w-7xl scroll-mt-20 px-4 py-6 sm:px-6 md:py-8 lg:px-8", activeTab !== "profile" && "hidden md:block")}>
+        <div className="grid gap-6 lg:grid-cols-[0.8fr_1.2fr]">
         <Card className="rounded-3xl border-border bg-card shadow-[var(--shadow-card)]">
           <CardHeader>
             <CardTitle className="text-2xl">Profile settings</CardTitle>
@@ -871,20 +888,22 @@ function UniStretchApp() {
             <ReviewList reviews={reviewsQuery.data ?? []} />
           </CardContent>
         </Card>
+        </div>
       </section>
 
       <nav aria-label="Mobile app navigation" className="fixed inset-x-3 bottom-3 z-40 grid grid-cols-4 rounded-3xl border border-surface/80 bg-surface/90 p-1.5 shadow-[var(--shadow-mobile-nav)] backdrop-blur-xl md:hidden">
-        {[
+        {([
           { id: "home", label: "Home", icon: House },
           { id: "stretch", label: "Stretch", icon: Activity },
           { id: "booking", label: "Doctors", icon: Stethoscope },
           { id: "profile", label: "Profile", icon: UserRound },
-        ].map(({ id, label, icon: Icon }) => (
+        ] satisfies { id: AppTab; label: string; icon: typeof House }[]).map(({ id, label, icon: Icon }) => (
           <Button
             key={id}
             type="button"
-            variant={id === "home" ? "soft" : "ghost"}
-            onClick={() => scrollToSection(id)}
+            variant={id === activeTab ? "soft" : "ghost"}
+            onClick={() => openTab(id)}
+            aria-current={id === activeTab ? "page" : undefined}
             className="h-14 min-w-0 flex-col gap-1 rounded-2xl px-1 text-[10px] font-bold"
           >
             <Icon className="size-5" />

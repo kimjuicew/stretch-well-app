@@ -3,3 +3,4 @@
 - Verify preview build health after changes.
 - Add a secure admin account area for viewing all user feedback, using server-validated roles.
 - Configure username-only accounts; email confirmation/reset is unavailable by design.
+- Convert phone navigation into distinct app screens, embed working YouTube stretch videos, and open Stretch after completion.
