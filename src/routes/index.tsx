@@ -476,8 +476,7 @@ function UniStretchApp() {
 
   function handleCompleteStretch() {
     openTab("stretch");
-    if (!requireSignedIn()) return;
-    completeStretchMutation.mutate();
+    if (user) completeStretchMutation.mutate();
   }
 
   function handleBooking() {
@@ -893,17 +892,17 @@ function UniStretchApp() {
       </section>
 
       <nav aria-label="Mobile app navigation" className="fixed inset-x-3 bottom-3 z-40 grid grid-cols-4 rounded-3xl border border-surface/80 bg-surface/90 p-1.5 shadow-[var(--shadow-mobile-nav)] backdrop-blur-xl md:hidden">
-        {[
+        {([
           { id: "home", label: "Home", icon: House },
           { id: "stretch", label: "Stretch", icon: Activity },
           { id: "booking", label: "Doctors", icon: Stethoscope },
           { id: "profile", label: "Profile", icon: UserRound },
-        ].map(({ id, label, icon: Icon }) => (
+        ] satisfies { id: AppTab; label: string; icon: typeof House }[]).map(({ id, label, icon: Icon }) => (
           <Button
             key={id}
             type="button"
             variant={id === activeTab ? "soft" : "ghost"}
-            onClick={() => openTab(id as AppTab)}
+            onClick={() => openTab(id)}
             aria-current={id === activeTab ? "page" : undefined}
             className="h-14 min-w-0 flex-col gap-1 rounded-2xl px-1 text-[10px] font-bold"
           >
