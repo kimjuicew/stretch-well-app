@@ -29,6 +29,13 @@
       "when": 1791343437000,
       "tag": "0003_add_profile_usernames",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1791777722634,
+      "tag": "0004_admin_view_sessions_bookings",
+      "breakpoints": true
     }
   ]
 }
