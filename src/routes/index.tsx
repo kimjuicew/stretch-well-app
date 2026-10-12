@@ -738,8 +738,49 @@ function UniStretchApp() {
             <Video className="mr-1 size-3" /> YouTube library
           </Badge>
         </div>
+        {exercise && activeExercise ? (
+          <Card id="exercise" className="mb-6 scroll-mt-24 rounded-3xl border-primary/40 bg-primary/5 shadow-[var(--shadow-card)]">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-2xl">
+                <Activity className="size-6 text-primary" /> Exercise in progress
+              </CardTitle>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Follow {activeExercise.title} ({activeExercise.minutes}) to the end — +10 pts unlock when the exercise timer finishes.
+              </p>
+            </CardHeader>
+            <CardContent className="grid gap-5 lg:grid-cols-[1.1fr_0.9fr]">
+              <div className="aspect-video overflow-hidden rounded-2xl bg-muted">
+                <iframe
+                  className="h-full w-full"
+                  src={`https://www.youtube-nocookie.com/embed/${activeExercise.youtubeId}?autoplay=1&rel=0`}
+                  title={`${activeExercise.title} guided stretch exercise`}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  allowFullScreen
+                />
+              </div>
+              <div className="flex flex-col justify-center gap-4 rounded-2xl bg-muted p-5">
+                <div>
+                  <p className="text-sm font-semibold text-muted-foreground">Exercise timer</p>
+                  <p className="mt-1 text-4xl font-black tabular-nums">{formatDuration(exerciseRemainingSeconds)}</p>
+                  <p className="mt-1 text-sm text-muted-foreground">remaining</p>
+                </div>
+                <Progress value={Math.min(100, (exerciseElapsedSeconds / exerciseRequiredSeconds) * 100)} className="h-2.5 bg-background" />
+                <Button variant="hero" onClick={handleFinishExercise} disabled={!exerciseDone || completeStretchMutation.isPending}>
+                  {completeStretchMutation.isPending
+                    ? "Saving points..."
+                    : exerciseDone
+                      ? "Finish — earn +10 pts"
+                      : `Finish in ${formatDuration(exerciseRemainingSeconds)}`}
+                </Button>
+                <Button variant="ghost" onClick={() => setExercise(null)}>
+                  Cancel exercise
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        ) : null}
         <div className="grid gap-4 md:grid-cols-3">
-          {stretchVideos.map((video) => (
+          {stretchVideos.map((video, index) => (
             <Card key={video.title} className="overflow-hidden rounded-3xl border-border bg-card shadow-[var(--shadow-card)]">
               <div className="aspect-video overflow-hidden bg-muted">
                 <iframe
@@ -758,6 +799,16 @@ function UniStretchApp() {
                 </div>
                 <h3 className="text-xl font-black">{video.title}</h3>
                 <p className="text-sm leading-6 text-muted-foreground">{video.description}</p>
+                <Button
+                  variant={exercise?.videoIndex === index ? "soft" : "wellness"}
+                  onClick={() => {
+                    setNow(Date.now());
+                    setExercise({ videoIndex: index, startedAt: Date.now() });
+                    openTab("stretch", "exercise");
+                  }}
+                >
+                  {exercise?.videoIndex === index ? "Restart this exercise" : "Do this exercise"}
+                </Button>
               </CardContent>
             </Card>
           ))}
