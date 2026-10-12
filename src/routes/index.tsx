@@ -193,6 +193,8 @@ function UniStretchApp() {
   const [reviewMessage, setReviewMessage] = useState("");
   const [isAuthDialogOpen, setIsAuthDialogOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<AppTab>("home");
+  const [exercise, setExercise] = useState<{ videoIndex: number; startedAt: number } | null>(null);
+  const [now, setNow] = useState(() => Date.now());
 
   function openTab(id: AppTab, targetId: string = id) {
     setActiveTab(id);
@@ -299,6 +301,11 @@ function UniStretchApp() {
   const sittingMinutes = Math.floor(secondsSitting / 60);
   const sittingProgress = Math.min(100, (secondsSitting / (reminderMinutes * 60)) * 100);
   const isReminderDue = secondsSitting >= reminderMinutes * 60 && (!snoozedUntil || Date.now() > snoozedUntil);
+  const activeExercise = exercise ? stretchVideos[exercise.videoIndex] : null;
+  const exerciseRequiredSeconds = activeExercise ? Number.parseInt(activeExercise.minutes, 10) * 60 : 0;
+  const exerciseElapsedSeconds = exercise ? Math.floor((now - exercise.startedAt) / 1000) : 0;
+  const exerciseRemainingSeconds = Math.max(0, exerciseRequiredSeconds - exerciseElapsedSeconds);
+  const exerciseDone = exerciseRequiredSeconds > 0 && exerciseRemainingSeconds === 0;
   const streakPoints = profile?.streak_points ?? 120;
   const currentStreak = profile?.current_streak_days ?? 3;
 
@@ -307,6 +314,12 @@ function UniStretchApp() {
     const timer = window.setInterval(() => setSecondsSitting((value) => value + 1), 1000);
     return () => window.clearInterval(timer);
   }, [isRunning]);
+
+  useEffect(() => {
+    if (!exercise) return;
+    const tick = window.setInterval(() => setNow(Date.now()), 1000);
+    return () => window.clearInterval(tick);
+  }, [exercise]);
 
   const completeStretchMutation = useMutation({
     mutationFn: async () => {
@@ -347,6 +360,7 @@ function UniStretchApp() {
     onSuccess: () => {
       setSecondsSitting(0);
       setSnoozedUntil(null);
+      setExercise(null);
       queryClient.invalidateQueries({ queryKey: ["unistretch", "profile", user?.id] });
     },
   });
@@ -475,8 +489,19 @@ function UniStretchApp() {
   }
 
   function handleCompleteStretch() {
-    openTab("stretch");
-    if (user) completeStretchMutation.mutate();
+    setNow(Date.now());
+    setExercise({ videoIndex: 0, startedAt: Date.now() });
+    openTab("stretch", "exercise");
+  }
+
+  function handleFinishExercise() {
+    if (!exercise || !exerciseDone) return;
+    setExercise(null);
+    if (user) {
+      completeStretchMutation.mutate();
+    } else {
+      setIsAuthDialogOpen(true);
+    }
   }
 
   function handleBooking() {
@@ -646,13 +671,14 @@ function UniStretchApp() {
                   </div>
                 </div>
                 <div className="mt-4 flex flex-wrap gap-2">
-                  <Button variant="wellness" onClick={handleCompleteStretch} disabled={completeStretchMutation.isPending}>
-                    Complete stretch +10 pts
+                  <Button variant="wellness" onClick={handleCompleteStretch}>
+                    Complete stretch
                   </Button>
                   <Button variant="soft" onClick={() => setSnoozedUntil(Date.now() + 5 * 60 * 1000)}>
                     Snooze 5 min
                   </Button>
                 </div>
+                <p className="mt-2 text-xs text-muted-foreground">You earn +10 pts only after finishing the guided exercise.</p>
               </div>
               <div className="grid grid-cols-3 gap-3">
                 {[30, 45, 60].map((minutes) => (
