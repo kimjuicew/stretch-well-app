@@ -679,7 +679,7 @@ function UniStretchApp() {
                     Snooze 5 min
                   </Button>
                 </div>
-                <p className="mt-2 text-xs text-muted-foreground">You earn +10 pts only after finishing the guided exercise.</p>
+                <p className="mt-2 text-xs text-muted-foreground">Finish the short exercise first — then you get 10 points.</p>
               </div>
               <div className="grid grid-cols-3 gap-3">
                 {[30, 45, 60].map((minutes) => (
