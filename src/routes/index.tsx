@@ -306,8 +306,8 @@ function UniStretchApp() {
   const exerciseElapsedSeconds = exercise ? Math.floor((now - exercise.startedAt) / 1000) : 0;
   const exerciseRemainingSeconds = Math.max(0, exerciseRequiredSeconds - exerciseElapsedSeconds);
   const exerciseDone = exerciseRequiredSeconds > 0 && exerciseRemainingSeconds === 0;
-  const streakPoints = profile?.streak_points ?? 120;
-  const currentStreak = profile?.current_streak_days ?? 3;
+  const streakPoints = profile?.streak_points ?? (user ? 0 : 120);
+  const currentStreak = profile?.current_streak_days ?? (user ? 0 : 3);
 
   useEffect(() => {
     if (!isRunning) return;
@@ -521,7 +521,7 @@ function UniStretchApp() {
     <main className="min-h-screen overflow-hidden bg-background pb-24 text-foreground md:pb-0">
       <section id="home" className={cn("relative scroll-mt-4 border-b border-border bg-[image:var(--gradient-hero)]", activeTab !== "home" && "hidden md:block")}>
         <div className="absolute inset-x-0 top-0 h-2 bg-[image:var(--gradient-strip)]" />
-        <div className="mx-auto grid min-h-[92vh] max-w-7xl gap-8 px-4 pb-10 pt-5 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:px-8 lg:pt-6">
+        <div className={cn("mx-auto grid max-w-7xl gap-8 px-4 pt-5 sm:px-6 lg:px-8 lg:pt-6", user ? "pb-5" : "min-h-[80vh] pb-10 lg:grid-cols-[1.05fr_0.95fr]")}>
           <div className="flex flex-col justify-between gap-7 lg:gap-10">
             <header className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-3xl border border-surface/70 bg-surface/70 p-2.5 shadow-[var(--shadow-card)] backdrop-blur-xl sm:p-3 lg:border-transparent lg:bg-transparent lg:p-0 lg:shadow-none">
               <div className="flex min-w-0 items-center gap-3">
@@ -554,10 +554,8 @@ function UniStretchApp() {
               )}
             </header>
 
+            {!user && (
             <div className="max-w-2xl space-y-5 sm:space-y-7">
-              <Badge className="gap-2 rounded-full bg-event px-3 py-1.5 text-event-foreground shadow-[var(--shadow-soft)]">
-                <Sparkles className="size-3.5" /> Health check up event this Friday
-              </Badge>
               <div className="space-y-4 sm:space-y-5">
                 <h1 className="max-w-3xl text-4xl font-black leading-[1.06] sm:text-6xl lg:text-7xl lg:leading-[0.95]">
                   Move before office syndrome <span className="text-primary">moves in.</span>
@@ -576,35 +574,11 @@ function UniStretchApp() {
                 </Button>
               </div>
 
-              <div className="rounded-3xl border border-surface/80 bg-surface/80 p-4 shadow-[var(--shadow-elevated)] backdrop-blur-xl lg:hidden">
-                <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4">
-                  <div className="min-w-0">
-                    <p className="text-xs font-bold uppercase text-muted-foreground">Current sitting block</p>
-                    <p className="mt-1 text-4xl font-black tabular-nums">{formattedTime}</p>
-                  </div>
-                  <Button variant="soft" size="icon" className="size-12 shrink-0 rounded-2xl" onClick={() => setIsRunning((value) => !value)} aria-label={isRunning ? "Pause timer" : "Start timer"}>
-                    {isRunning ? <Pause className="size-5" /> : <Play className="size-5" />}
-                  </Button>
-                </div>
-                <Progress value={sittingProgress} className="mt-4 h-2.5 bg-muted" />
-                <div className="mt-3 flex items-center justify-between gap-3 text-xs font-semibold text-muted-foreground">
-                  <span>{Math.max(0, reminderMinutes - sittingMinutes)} min until break</span>
-                  <span>Goal {reminderMinutes} min</span>
-                </div>
-              </div>
             </div>
-
-            <div className="hidden gap-3 sm:grid sm:grid-cols-3">
-              {eventHighlights.map((item) => (
-                <div key={item} className="rounded-2xl border border-border bg-surface/80 p-4 shadow-[var(--shadow-card)] backdrop-blur">
-                  <CheckCircle2 className="mb-3 size-5 text-success" />
-                  <p className="text-sm font-semibold">{item}</p>
-                </div>
-              ))}
-            </div>
+            )}
           </div>
 
-          <div className="relative hidden items-end lg:flex">
+          {!user && <div className="relative hidden items-end lg:flex">
             <div className="relative w-full overflow-hidden rounded-[2rem] border border-border bg-surface shadow-[var(--shadow-elevated)]">
               <img
                 src={wellnessImage}
@@ -613,22 +587,37 @@ function UniStretchApp() {
                 height={912}
                 className="h-[34rem] w-full object-cover"
               />
-              <div className="absolute bottom-5 left-5 right-5 rounded-3xl border border-border bg-surface/90 p-5 shadow-[var(--shadow-card)] backdrop-blur-xl">
-                <div className="flex items-center justify-between gap-4">
-                  <div>
-                    <p className="text-sm font-semibold text-muted-foreground">Sitting timer</p>
-                    <p className="text-3xl font-black">{formattedTime}</p>
-                  </div>
-                  <div className="flex size-14 items-center justify-center rounded-2xl bg-warning text-warning-foreground">
-                    <AlarmClock className="size-7" />
-                  </div>
-                </div>
-                <Progress value={sittingProgress} className="mt-4 h-3 bg-muted" />
-              </div>
+
             </div>
-          </div>
+          </div>}
         </div>
       </section>
+
+      {user && (
+        <section id="user-dashboard" className={cn("mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8", activeTab !== "home" && "hidden md:block")}>
+          <div className="mb-5 flex items-center gap-3">
+            <div className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary"><UserRound className="size-6" /></div>
+            <div className="min-w-0">
+              <p className="text-sm font-semibold text-muted-foreground">Your wellness overview</p>
+              <h1 className="break-words text-2xl font-black">{profile?.display_name ?? user.email?.split("@")[0] ?? "Member"}</h1>
+            </div>
+          </div>
+          <dl className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            {[
+              { label: "Stretch points", value: profile?.streak_points ?? 0, icon: Sparkles },
+              { label: "Day streak", value: profile?.current_streak_days ?? 0, icon: Flame },
+              { label: "Upcoming appointments", value: (bookingsQuery.data ?? []).filter((booking) => booking.status === "booked" && new Date(booking.appointment_time).getTime() > now).length, icon: CalendarCheck },
+              { label: "Last stretch", value: profile?.last_stretch_at ? new Date(profile.last_stretch_at).toLocaleDateString("en-GB", { day: "numeric", month: "short" }) : "Not yet", icon: Activity },
+            ].map(({ label, value, icon: Icon }) => (
+              <div key={label} className="rounded-2xl border border-border bg-surface/80 p-4 shadow-[var(--shadow-card)] backdrop-blur-xl">
+                <Icon className="mb-3 size-5 text-primary" />
+                <dd className="text-2xl font-black tabular-nums">{value}</dd>
+                <dt className="mt-1 text-sm font-medium text-muted-foreground">{label}</dt>
+              </div>
+            ))}
+          </dl>
+        </section>
+      )}
 
       <section id="timer" className={cn("mx-auto max-w-7xl scroll-mt-20 px-4 py-8 sm:px-6 lg:px-8", activeTab !== "home" && "hidden md:block")}>
         <div className="grid gap-6 lg:grid-cols-[1fr_0.75fr]">
@@ -729,6 +718,32 @@ function UniStretchApp() {
         </div>
       </section>
 
+      <section id="health-event" className={cn("mx-auto max-w-7xl px-4 pb-8 sm:px-6 lg:px-8", activeTab !== "home" && "hidden md:block")}>
+        <Card className="rounded-3xl border-border bg-card shadow-[var(--shadow-card)]">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-2xl">
+              <HeartPulse className="size-6 text-destructive" /> Health check up event
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="rounded-3xl bg-event p-5 text-event-foreground">
+              <p className="text-sm font-bold uppercase opacity-80">Company wellness announcement</p>
+              <h3 className="mt-2 text-3xl font-black">Ergo Day: Posture + Spine Screening</h3>
+              <p className="mt-3 leading-7">
+                Friday, 09:00–16:00. Join a desk setup check, posture scan, and 10-minute consult for office syndrome risk.
+              </p>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-3">
+              {eventHighlights.map((item) => (
+                <div key={item} className="rounded-2xl bg-muted p-4 text-sm font-semibold">
+                  {item}
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </section>
+
       <section id="stretch" className={cn("mx-auto min-h-[calc(100vh-6rem)] max-w-7xl scroll-mt-20 px-4 py-6 sm:px-6 md:py-8 lg:px-8", activeTab !== "stretch" && "hidden md:block")}>
         <div className="mb-5 flex items-end justify-between gap-4">
           <div>
@@ -817,30 +832,8 @@ function UniStretchApp() {
       </section>
 
       <section id="booking" className={cn("mx-auto min-h-[calc(100vh-6rem)] max-w-7xl scroll-mt-20 px-4 py-6 sm:px-6 md:py-8 lg:px-8", activeTab !== "booking" && "hidden md:block")}>
-        <div className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
-        <Card className="rounded-3xl border-border bg-card shadow-[var(--shadow-card)]">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-2xl">
-              <HeartPulse className="size-6 text-destructive" /> Health check up event
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="rounded-3xl bg-event p-5 text-event-foreground">
-              <p className="text-sm font-bold uppercase opacity-80">Company wellness announcement</p>
-              <h3 className="mt-2 text-3xl font-black">Ergo Day: Posture + Spine Screening</h3>
-              <p className="mt-3 leading-7">
-                Friday, 09:00–16:00. Join a desk setup check, posture scan, and 10-minute consult for office syndrome risk.
-              </p>
-            </div>
-            <div className="grid gap-3 sm:grid-cols-3">
-              {eventHighlights.map((item) => (
-                <div key={item} className="rounded-2xl bg-muted p-4 text-sm font-semibold">
-                  {item}
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+        <div className="grid gap-6">
+
 
         <Card className="rounded-3xl border-border bg-card shadow-[var(--shadow-card)]">
           <CardHeader>
