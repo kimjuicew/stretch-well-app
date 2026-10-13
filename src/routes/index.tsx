@@ -306,8 +306,8 @@ function UniStretchApp() {
   const exerciseElapsedSeconds = exercise ? Math.floor((now - exercise.startedAt) / 1000) : 0;
   const exerciseRemainingSeconds = Math.max(0, exerciseRequiredSeconds - exerciseElapsedSeconds);
   const exerciseDone = exerciseRequiredSeconds > 0 && exerciseRemainingSeconds === 0;
-  const streakPoints = profile?.streak_points ?? 120;
-  const currentStreak = profile?.current_streak_days ?? 3;
+  const streakPoints = profile?.streak_points ?? (user ? 0 : 120);
+  const currentStreak = profile?.current_streak_days ?? (user ? 0 : 3);
 
   useEffect(() => {
     if (!isRunning) return;
