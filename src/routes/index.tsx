@@ -8,6 +8,9 @@ import {
   CheckCircle2,
   Clock3,
   Flame,
+  Gift,
+  Ticket,
+  Coffee,
   HeartPulse,
   House,
   LogOut,
@@ -142,6 +145,12 @@ const doctors = [
   },
 ];
 
+const rewardPreviews = [
+  { id: "drink", title: "Healthy drink voucher", points: 100, icon: Coffee, description: "A refreshing reward for your next stretch milestone." },
+  { id: "wellness", title: "Wellness class pass", points: 250, icon: Ticket, description: "Make time for a guided wellness session." },
+  { id: "desk", title: "Desk wellness kit", points: 500, icon: Gift, description: "A little extra care for your everyday workspace." },
+];
+
 const eventHighlights = ["Posture screening", "Desk setup check", "Mini stretch class"];
 
 export const Route = createFileRoute("/")({
@@ -192,6 +201,7 @@ function UniStretchApp() {
   const [reviewError, setReviewError] = useState("");
   const [reviewMessage, setReviewMessage] = useState("");
   const [isAuthDialogOpen, setIsAuthDialogOpen] = useState(false);
+  const [selectedReward, setSelectedReward] = useState<(typeof rewardPreviews)[number] | null>(null);
   const [activeTab, setActiveTab] = useState<AppTab>("home");
   const [exercise, setExercise] = useState<{ videoIndex: number; startedAt: number } | null>(null);
   const [now, setNow] = useState(() => Date.now());
@@ -518,8 +528,8 @@ function UniStretchApp() {
   }
 
   return (
-    <main className="min-h-screen overflow-hidden bg-background pb-24 text-foreground md:pb-0">
-      <section id="home" className={cn("relative scroll-mt-4 border-b border-border bg-[image:var(--gradient-hero)]", activeTab !== "home" && "hidden md:block")}>
+    <main className="min-h-screen overflow-hidden bg-background pb-28 text-foreground">
+      <section id="home" className={cn("relative scroll-mt-4 border-b border-border bg-[image:var(--gradient-hero)]", activeTab !== "home" && "hidden")}>
         <div className="absolute inset-x-0 top-0 h-2 bg-[image:var(--gradient-strip)]" />
         <div className={cn("mx-auto grid max-w-7xl gap-8 px-4 pt-5 sm:px-6 lg:px-8 lg:pt-6", user ? "pb-5" : "min-h-[80vh] pb-10 lg:grid-cols-[1.05fr_0.95fr]")}>
           <div className="flex flex-col justify-between gap-7 lg:gap-10">
@@ -594,7 +604,7 @@ function UniStretchApp() {
       </section>
 
       {user && (
-        <section id="user-dashboard" className={cn("mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8", activeTab !== "home" && "hidden md:block")}>
+        <section id="user-dashboard" className={cn("mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8", activeTab !== "home" && "hidden")}>
           <div className="mb-5 flex items-center gap-3">
             <div className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary"><UserRound className="size-6" /></div>
             <div className="min-w-0">
@@ -619,7 +629,7 @@ function UniStretchApp() {
         </section>
       )}
 
-      <section id="timer" className={cn("mx-auto max-w-7xl scroll-mt-20 px-4 py-8 sm:px-6 lg:px-8", activeTab !== "home" && "hidden md:block")}>
+      <section id="timer" className={cn("mx-auto max-w-7xl scroll-mt-20 px-4 py-8 sm:px-6 lg:px-8", activeTab !== "home" && "hidden")}>
         <div className="grid gap-6 lg:grid-cols-[1fr_0.75fr]">
         <Card className="rounded-3xl border-border bg-card shadow-[var(--shadow-card)]">
           <CardHeader className="gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -697,6 +707,28 @@ function UniStretchApp() {
               <p className="mt-2 text-5xl font-black">{streakPoints}</p>
               <p className="mt-3 text-sm opacity-90">{currentStreak} day active stretch streak</p>
             </div>
+            <div className="space-y-3 border-b border-border pb-5">
+              <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2">
+                <h3 className="flex min-w-0 items-center gap-2 font-bold"><Gift className="size-4 shrink-0 text-primary" /> Rewards</h3>
+                <Badge variant="outline" className="shrink-0">Coming soon</Badge>
+              </div>
+              {rewardPreviews.map((reward) => {
+                const Icon = reward.icon;
+                const remaining = Math.max(0, reward.points - streakPoints);
+                return (
+                  <div key={reward.id} className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 rounded-2xl border border-border bg-surface-soft p-3">
+                    <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-event/20 text-event-foreground"><Icon className="size-5" /></div>
+                    <div className="min-w-0">
+                      <p className="text-sm font-bold">{reward.title}</p>
+                      <p className="mt-1 text-xs font-semibold text-primary">{reward.points} pts</p>
+                      <Progress value={Math.min(100, streakPoints / reward.points * 100)} className="mt-2 h-1.5" />
+                      <p className="mt-1 text-xs text-muted-foreground">{remaining ? `${remaining} points to go` : "Points goal reached"}</p>
+                    </div>
+                    <Button variant="soft" size="icon" className="shrink-0" aria-label={`View ${reward.title}`} title={`View ${reward.title}`} onClick={() => setSelectedReward(reward)}><ArrowRight className="size-4" /></Button>
+                  </div>
+                );
+              })}
+            </div>
             <div className="grid grid-cols-3 gap-2">
               {["Mon", "Tue", "Wed", "Thu", "Fri"].map((day, index) => (
                 <div
@@ -718,7 +750,7 @@ function UniStretchApp() {
         </div>
       </section>
 
-      <section id="health-event" className={cn("mx-auto max-w-7xl px-4 pb-8 sm:px-6 lg:px-8", activeTab !== "home" && "hidden md:block")}>
+      <section id="health-event" className={cn("mx-auto max-w-7xl px-4 pb-8 sm:px-6 lg:px-8", activeTab !== "home" && "hidden")}>
         <Card className="rounded-3xl border-border bg-card shadow-[var(--shadow-card)]">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-2xl">
@@ -744,7 +776,7 @@ function UniStretchApp() {
         </Card>
       </section>
 
-      <section id="stretch" className={cn("mx-auto min-h-[calc(100vh-6rem)] max-w-7xl scroll-mt-20 px-4 py-6 sm:px-6 md:py-8 lg:px-8", activeTab !== "stretch" && "hidden md:block")}>
+      <section id="stretch" className={cn("mx-auto min-h-[calc(100vh-6rem)] max-w-7xl scroll-mt-20 px-4 py-6 sm:px-6 md:py-8 lg:px-8", activeTab !== "stretch" && "hidden")}>
         <div className="mb-5 flex items-end justify-between gap-4">
           <div>
             <p className="text-sm font-bold uppercase text-primary">Guided stretch clips</p>
@@ -831,7 +863,7 @@ function UniStretchApp() {
         </div>
       </section>
 
-      <section id="booking" className={cn("mx-auto min-h-[calc(100vh-6rem)] max-w-7xl scroll-mt-20 px-4 py-6 sm:px-6 md:py-8 lg:px-8", activeTab !== "booking" && "hidden md:block")}>
+      <section id="booking" className={cn("mx-auto min-h-[calc(100vh-6rem)] max-w-7xl scroll-mt-20 px-4 py-6 sm:px-6 md:py-8 lg:px-8", activeTab !== "booking" && "hidden")}>
         <div className="grid gap-6">
 
 
@@ -885,7 +917,7 @@ function UniStretchApp() {
         </div>
       </section>
 
-      <section id="profile" className={cn("mx-auto min-h-[calc(100vh-6rem)] max-w-7xl scroll-mt-20 px-4 py-6 sm:px-6 md:py-8 lg:px-8", activeTab !== "profile" && "hidden md:block")}>
+      <section id="profile" className={cn("mx-auto min-h-[calc(100vh-6rem)] max-w-7xl scroll-mt-20 px-4 py-6 sm:px-6 md:py-8 lg:px-8", activeTab !== "profile" && "hidden")}>
         <div className="grid gap-6 lg:grid-cols-[0.8fr_1.2fr]">
         <Card className="rounded-3xl border-border bg-card shadow-[var(--shadow-card)]">
           <CardHeader>
@@ -961,7 +993,7 @@ function UniStretchApp() {
         </div>
       </section>
 
-      <nav aria-label="Mobile app navigation" className="fixed inset-x-3 bottom-3 z-40 grid grid-cols-4 rounded-3xl border border-surface/80 bg-surface/90 p-1.5 shadow-[var(--shadow-mobile-nav)] backdrop-blur-xl md:hidden">
+      <nav aria-label="App navigation" className="fixed inset-x-3 bottom-3 z-40 mx-auto grid max-w-2xl grid-cols-4 rounded-3xl border border-surface/80 bg-surface/90 p-1.5 shadow-[var(--shadow-mobile-nav)] backdrop-blur-xl sm:bottom-5 sm:p-2">
         {([
           { id: "home", label: "Home", icon: House },
           { id: "stretch", label: "Stretch", icon: Activity },
@@ -974,13 +1006,27 @@ function UniStretchApp() {
             variant={id === activeTab ? "soft" : "ghost"}
             onClick={() => openTab(id)}
             aria-current={id === activeTab ? "page" : undefined}
-            className="h-14 min-w-0 flex-col gap-1 rounded-2xl px-1 text-[10px] font-bold"
+            className="h-14 min-w-0 flex-col gap-1 rounded-2xl px-1 text-[10px] font-bold sm:flex-row sm:gap-2 sm:px-3 sm:text-sm"
           >
             <Icon className="size-5" />
             <span className="truncate">{label}</span>
           </Button>
         ))}
       </nav>
+
+      <Dialog open={Boolean(selectedReward)} onOpenChange={(open) => { if (!open) setSelectedReward(null); }}>
+        <DialogContent className="rounded-3xl border-border bg-card">
+          <DialogHeader>
+            <DialogTitle>{selectedReward?.title ?? "Reward details"}</DialogTitle>
+            <DialogDescription>{selectedReward?.description}</DialogDescription>
+          </DialogHeader>
+          <div className="flex items-center justify-between gap-3 rounded-2xl bg-muted p-5">
+            <span className="text-2xl font-black text-primary">{selectedReward?.points ?? 0} pts</span>
+            <Badge variant="outline">Coming soon</Badge>
+          </div>
+          <Button variant="soft" onClick={() => setSelectedReward(null)}>Close</Button>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={isAuthDialogOpen} onOpenChange={setIsAuthDialogOpen}>
         <DialogContent className="rounded-3xl border-border bg-card">
