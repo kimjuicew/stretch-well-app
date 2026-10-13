@@ -638,7 +638,7 @@ function UniStretchApp() {
               <CardTitle className="flex items-center gap-2 text-2xl">
                 <Clock3 className="size-6 text-primary" /> Sitting reminder
               </CardTitle>
-              <p className="mt-2 text-sm text-muted-foreground">Your prototype alert reacts to the saved reminder interval.</p>
+              <p className="mt-2 text-sm text-muted-foreground">We'll remind you to stand and stretch at the interval you pick.</p>
             </div>
             <div className="flex gap-2">
               <Button variant="soft" size="icon" onClick={() => setIsRunning((value) => !value)} aria-label={isRunning ? "Pause timer" : "Start timer"}>
@@ -673,6 +673,7 @@ function UniStretchApp() {
                 <div className="mt-4 flex flex-wrap gap-2">
                   <Button variant="wellness" onClick={handleCompleteStretch}>
                     Complete stretch
+                    <ArrowRight className="size-4" />
                   </Button>
                   <Button variant="soft" onClick={() => setSnoozedUntil(Date.now() + 5 * 60 * 1000)}>
                     Snooze 5 min
@@ -720,9 +721,6 @@ function UniStretchApp() {
                 </div>
               ))}
             </div>
-            <p className="text-sm leading-6 text-muted-foreground">
-              Every completed guided stretch saves to the database and adds points for motivation.
-            </p>
           </CardContent>
         </Card>
         </div>
@@ -955,7 +953,6 @@ function UniStretchApp() {
                 placeholder="Tell us what would make stretch reminders easier to follow"
                 className="min-h-28 rounded-2xl"
               />
-              <p className="text-xs text-muted-foreground">Validation: rating is required and feedback needs 5–600 characters.</p>
             </div>
             {reviewError ? <p className="rounded-2xl bg-destructive/10 p-3 text-sm font-semibold text-destructive">{reviewError}</p> : null}
             {reviewMessage ? <p className="rounded-2xl bg-success/10 p-3 text-sm font-semibold text-success">{reviewMessage}</p> : null}
