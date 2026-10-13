@@ -530,7 +530,7 @@ function UniStretchApp() {
                 </div>
                 <div className="min-w-0">
                   <p className="truncate text-lg font-extrabold sm:text-xl">UniStretch</p>
-                  <p className="truncate text-[10px] font-bold uppercase text-muted-foreground sm:text-xs">OfficeCheck prototype</p>
+                  <p className="truncate text-[10px] font-bold uppercase text-muted-foreground sm:text-xs">Sit less, stretch more</p>
                 </div>
               </div>
               {user ? (
@@ -898,9 +898,9 @@ function UniStretchApp() {
           <CardContent className="space-y-5">
             <div className="rounded-3xl bg-muted p-5">
               <p className="text-sm font-semibold text-muted-foreground">Signed in as</p>
-              <p className="mt-2 text-xl font-black">{user ? profile?.display_name ?? user.email : "Guest prototype"}</p>
+              <p className="mt-2 text-xl font-black">{user ? profile?.display_name ?? user.email : "Guest"}</p>
               <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                Login to save reminder interval, streak points, bookings, and reviews to the database.
+                Sign in to keep your reminder interval, streak points, bookings, and reviews.
               </p>
             </div>
             <div className="space-y-2">
