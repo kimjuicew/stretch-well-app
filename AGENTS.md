@@ -9,4 +9,5 @@
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
 - UniStretch stores user-owned wellness records in Lovable Cloud tables with RLS; keep client writes scoped to the signed-in user so private data stays separated.
-- Keep the phone experience as state-driven tab screens within the main route so timer and form state persist while switching tabs.
+- Keep all viewport experiences as state-driven tab screens within the main route so timer and form state persist while switching tabs.
+- Reward browsing is presentation-only until a redemption service is requested; never deduct saved points for preview actions.

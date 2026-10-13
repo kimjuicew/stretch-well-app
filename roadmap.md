@@ -5,3 +5,5 @@
 - Configure username-only accounts; email confirmation/reset is unavailable by design.
 - Convert phone navigation into distinct app screens, embed working YouTube stretch videos, and open Stretch after completion.
 - Verified welcome visibility, signed-in user overview, and Home health event placement.
+- Add separate tab screens and persistent navigation on desktop and iPad.
+- Add reward preview UI beside Total points without changing saved points.
