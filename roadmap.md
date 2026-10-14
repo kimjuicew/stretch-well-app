@@ -7,3 +7,4 @@
 - Verified welcome visibility, signed-in user overview, and Home health event placement.
 - Add separate tab screens and persistent navigation on desktop and iPad.
 - Add reward preview UI beside Total points without changing saved points.
+- Add clear illustrated step-by-step guides for neck, back, and wrist exercises; verify images and exercise flow.

@@ -29,6 +29,7 @@ import { FormEvent, useEffect, useMemo, useState } from "react";
 import { z } from "zod";
 
 import wellnessImage from "@/assets/unistretch-wellness.jpg";
+import { StretchStepGuide } from "@/components/stretch-step-guide";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -827,6 +828,7 @@ function UniStretchApp() {
             </CardContent>
           </Card>
         ) : null}
+        <StretchStepGuide key={exercise?.videoIndex ?? "browse"} initialIndex={exercise?.videoIndex ?? 0} />
         <div className="grid gap-4 md:grid-cols-3">
           {stretchVideos.map((video, index) => (
             <Card key={video.title} className="overflow-hidden rounded-3xl border-border bg-card shadow-[var(--shadow-card)]">

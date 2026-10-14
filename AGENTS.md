@@ -11,3 +11,4 @@
 - UniStretch stores user-owned wellness records in Lovable Cloud tables with RLS; keep client writes scoped to the signed-in user so private data stays separated.
 - Keep all viewport experiences as state-driven tab screens within the main route so timer and form state persist while switching tabs.
 - Reward browsing is presentation-only until a redemption service is requested; never deduct saved points for preview actions.
+- Keep illustrated movement instructions in a standalone presentation component; selecting a guide must not start or complete the points timer.
