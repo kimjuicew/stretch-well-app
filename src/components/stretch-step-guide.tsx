@@ -38,7 +38,7 @@ const guides = [
   },
 ];
 
-export function StretchStepGuide({ initialIndex = 0 }: { initialIndex?: number }) {
+export function StretchStepGuide({ initialIndex = 0, showSelector = true }: { initialIndex?: number; showSelector?: boolean }) {
   const [selectedIndex, setSelectedIndex] = useState(initialIndex);
   const guide = guides[selectedIndex] ?? guides[0];
   if (!guide) return null;
@@ -50,11 +50,11 @@ export function StretchStepGuide({ initialIndex = 0 }: { initialIndex?: number }
           <p className="flex items-center gap-2 text-sm font-bold text-primary"><Activity className="size-4" /> Movement guide</p>
           <h3 id="stretch-steps-heading" className="mt-2 text-2xl font-black">Stretch, step by step</h3>
         </div>
-        <div role="group" aria-label="Choose a movement guide" className="flex flex-wrap gap-2">
+        {showSelector && <div role="group" aria-label="Choose a movement guide" className="flex flex-wrap gap-2">
           {guides.map((item, index) => (
             <Button key={item.name} variant={selectedIndex === index ? "wellness" : "outline"} size="sm" aria-pressed={selectedIndex === index} onClick={() => setSelectedIndex(index)}>{item.name}</Button>
           ))}
-        </div>
+        </div>}
       </div>
       <ol aria-label={`${guide.name} exercise steps`} className="grid gap-4 md:grid-cols-3">
         {guide.steps.map((step, index) => (

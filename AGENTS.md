@@ -12,3 +12,5 @@
 - Keep all viewport experiences as state-driven tab screens within the main route so timer and form state persist while switching tabs.
 - Reward browsing is presentation-only until a redemption service is requested; never deduct saved points for preview actions.
 - Keep illustrated movement instructions in a standalone presentation component; selecting a guide must not start or complete the points timer.
+- Keep first-login walkthrough completion in browser storage scoped to the signed-in user ID, so the frontend tour does not change private wellness records.
+- Keep video filtering and detail browsing separate from exercise start actions, so opening instructions never starts the points timer.
