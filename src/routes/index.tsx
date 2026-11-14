@@ -25,10 +25,14 @@ import {
   UserRound,
   Video,
 } from "lucide-react";
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import { z } from "zod";
 
 import wellnessImage from "@/assets/unistretch-wellness.jpg";
+import doctorOne from "@/assets/unistretch-doctor-profile-01.png.asset.json";
+import doctorTwo from "@/assets/unistretch-doctor-profile-02.png.asset.json";
+import doctorThree from "@/assets/unistretch-doctor-profile-03.png.asset.json";
+import { FirstLoginTour } from "@/components/first-login-tour";
 import { StretchStepGuide } from "@/components/stretch-step-guide";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -120,29 +124,56 @@ const stretchVideos = [
     description: "Forearm glides and palm stretches for typing-heavy workdays.",
     accent: "bg-event/20 text-event-foreground",
     youtubeId: "fdD7CgN5FGg",
+    guideIndex: 2,
+  },
+  {
+    title: "Desk neck & shoulder release",
+    minutes: "4 min",
+    tag: "Neck & shoulder",
+    description: "A desk-friendly neck and shoulder routine with gentle seated stretches.",
+    accent: "bg-trust/15 text-trust",
+    youtubeId: "vLPfP1oRJFM",
+    guideIndex: 0,
+  },
+  {
+    title: "Mindful upper-body break",
+    minutes: "3 min",
+    tag: "Upper body",
+    description: "A short seated reset for your shoulders, arms, upper back, and neck.",
+    accent: "bg-success/15 text-success",
+    youtubeId: "sbTpwEmtkWg",
+    guideIndex: 1,
   },
 ];
+
+const stretchFilters = ["All", ...new Set(stretchVideos.map((video) => video.tag))];
 
 type AppTab = "home" | "stretch" | "booking" | "profile";
 
 const doctors = [
   {
-    name: "Dr. Maya Chen",
-    specialty: "Physiotherapy",
-    next: "Today, 15:30",
-    iso: "2026-10-06T15:30:00+07:00",
+    name: "Doctor profile 1",
+    specialty: "Specialty to be confirmed",
+    image: doctorOne.url,
+    daysFromNow: 1,
+    hour: 10,
+    minute: 0,
   },
   {
-    name: "Dr. Arin Patel",
-    specialty: "Ergonomics consult",
-    next: "Tomorrow, 10:00",
-    iso: "2026-10-07T10:00:00+07:00",
+    name: "Doctor profile 2",
+    specialty: "Specialty to be confirmed",
+    image: doctorTwo.url,
+    daysFromNow: 2,
+    hour: 13,
+    minute: 30,
   },
   {
-    name: "Dr. Nicha Wong",
-    specialty: "Rehab medicine",
-    next: "Fri, 13:00",
-    iso: "2026-10-09T13:00:00+07:00",
+    name: "Doctor profile 3",
+    specialty: "Specialty to be confirmed",
+    image: doctorThree.url,
+    daysFromNow: 3,
+    hour: 15,
+    minute: 0,
   },
 ];
 
@@ -184,7 +215,7 @@ function UniStretchApp() {
   const [authNotice, setAuthNotice] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [secondsSitting, setSecondsSitting] = useState(42 * 60);
+  const [secondsSitting, setSecondsSitting] = useState(0);
   const [isRunning, setIsRunning] = useState(true);
   const [snoozedUntil, setSnoozedUntil] = useState<number | null>(null);
   const [selectedDoctor, setSelectedDoctor] = useState<(typeof doctors)[number]>(
@@ -205,14 +236,16 @@ function UniStretchApp() {
   const [selectedReward, setSelectedReward] = useState<(typeof rewardPreviews)[number] | null>(null);
   const [activeTab, setActiveTab] = useState<AppTab>("home");
   const [exercise, setExercise] = useState<{ videoIndex: number; startedAt: number } | null>(null);
+  const [selectedStretchTag, setSelectedStretchTag] = useState("All");
+  const [selectedStretchVideoIndex, setSelectedStretchVideoIndex] = useState<number | null>(null);
   const [now, setNow] = useState(() => Date.now());
 
-  function openTab(id: AppTab, targetId: string = id) {
+  const openTab = useCallback((id: AppTab, targetId: string = id) => {
     setActiveTab(id);
     window.setTimeout(() => {
       document.getElementById(targetId)?.scrollIntoView({ behavior: "smooth", block: "start" });
     }, 0);
-  }
+  }, []);
 
   useEffect(() => {
     let mounted = true;
@@ -319,6 +352,10 @@ function UniStretchApp() {
   const exerciseDone = exerciseRequiredSeconds > 0 && exerciseRemainingSeconds === 0;
   const streakPoints = profile?.streak_points ?? (user ? 0 : 120);
   const currentStreak = profile?.current_streak_days ?? (user ? 0 : 3);
+  const selectedStretchVideo = selectedStretchVideoIndex === null ? null : stretchVideos[selectedStretchVideoIndex] ?? null;
+  const filteredStretchVideos = stretchVideos
+    .map((video, index) => ({ video, index }))
+    .filter(({ video }) => selectedStretchTag === "All" || video.tag === selectedStretchTag);
 
   useEffect(() => {
     if (!isRunning) return;
@@ -394,7 +431,7 @@ function UniStretchApp() {
       const parsed = bookingSchema.parse({
         doctorName: selectedDoctor.name,
         specialty: selectedDoctor.specialty,
-        appointmentTime: selectedDoctor.iso,
+        appointmentTime: getDoctorAppointmentDate(selectedDoctor).toISOString(),
         notes: bookingNotes,
       });
       const { error } = await supabase.from("doctor_bookings").insert({
@@ -403,12 +440,13 @@ function UniStretchApp() {
         specialty: parsed.specialty,
         appointment_time: parsed.appointmentTime,
         notes: parsed.notes || null,
+        status: "pending",
       });
       if (error) throw error;
     },
     onSuccess: () => {
       setBookingNotes("");
-      setBookingMessage("Your online appointment is confirmed.");
+      setBookingMessage("Your appointment request has been saved.");
       queryClient.invalidateQueries({ queryKey: ["unistretch", "bookings", user?.id] });
     },
     onError: (error) => setBookingMessage(error instanceof Error ? error.message : "Booking failed."),
@@ -617,7 +655,7 @@ function UniStretchApp() {
             {[
               { label: "Stretch points", value: profile?.streak_points ?? 0, icon: Sparkles },
               { label: "Day streak", value: profile?.current_streak_days ?? 0, icon: Flame },
-              { label: "Upcoming appointments", value: (bookingsQuery.data ?? []).filter((booking) => booking.status === "booked" && new Date(booking.appointment_time).getTime() > now).length, icon: CalendarCheck },
+              { label: "Upcoming appointments", value: (bookingsQuery.data ?? []).filter((booking) => ["booked", "pending", "confirmed"].includes(booking.status) && new Date(booking.appointment_time).getTime() > now).length, icon: CalendarCheck },
               { label: "Last stretch", value: profile?.last_stretch_at ? new Date(profile.last_stretch_at).toLocaleDateString("en-GB", { day: "numeric", month: "short" }) : "Not yet", icon: Activity },
             ].map(({ label, value, icon: Icon }) => (
               <div key={label} className="rounded-2xl border border-border bg-surface/80 p-4 shadow-[var(--shadow-card)] backdrop-blur-xl">
@@ -787,6 +825,20 @@ function UniStretchApp() {
             <Video className="mr-1 size-3" /> YouTube library
           </Badge>
         </div>
+        <div role="group" aria-label="Filter stretch videos" className="mb-5 flex flex-wrap gap-2">
+          {stretchFilters.map((tag) => (
+            <Button
+              key={tag}
+              type="button"
+              size="sm"
+              variant={selectedStretchTag === tag ? "default" : "soft"}
+              aria-pressed={selectedStretchTag === tag}
+              onClick={() => setSelectedStretchTag(tag)}
+            >
+              {tag}
+            </Button>
+          ))}
+        </div>
         {exercise && activeExercise ? (
           <Card id="exercise" className="mb-6 scroll-mt-24 rounded-3xl border-primary/40 bg-primary/5 shadow-[var(--shadow-card)]">
             <CardHeader>
@@ -828,9 +880,8 @@ function UniStretchApp() {
             </CardContent>
           </Card>
         ) : null}
-        <StretchStepGuide key={exercise?.videoIndex ?? "browse"} initialIndex={exercise?.videoIndex ?? 0} />
         <div className="grid gap-4 md:grid-cols-3">
-          {stretchVideos.map((video, index) => (
+          {filteredStretchVideos.map(({ video, index }) => (
             <Card key={video.title} className="overflow-hidden rounded-3xl border-border bg-card shadow-[var(--shadow-card)]">
               <div className="aspect-video overflow-hidden bg-muted">
                 <iframe
@@ -849,6 +900,10 @@ function UniStretchApp() {
                 </div>
                 <h3 className="text-xl font-black">{video.title}</h3>
                 <p className="text-sm leading-6 text-muted-foreground">{video.description}</p>
+                <Button variant="outline" className="w-full" onClick={() => setSelectedStretchVideoIndex(index)}>
+                  View video details
+                  <ArrowRight className="size-4" />
+                </Button>
                 <Button
                   variant={exercise?.videoIndex === index ? "soft" : "wellness"}
                   onClick={() => {
@@ -872,8 +927,9 @@ function UniStretchApp() {
         <Card className="rounded-3xl border-border bg-card shadow-[var(--shadow-card)]">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-2xl">
-              <Stethoscope className="size-6 text-primary" /> Online doctor booking
+              <Stethoscope className="size-6 text-primary" /> Online doctor appointment request
             </CardTitle>
+            <p className="text-sm leading-6 text-muted-foreground">Choose a profile to save an appointment request. Names, specialties, and availability must be confirmed by the care team.</p>
           </CardHeader>
           <CardContent className="space-y-5">
             <div className="grid gap-3 md:grid-cols-3">
@@ -888,10 +944,13 @@ function UniStretchApp() {
                     selectedDoctor.name === doctor.name ? "border-primary bg-primary/10" : "border-border bg-surface-soft hover:bg-muted",
                   )}
                 >
-                  <span className="block w-full">
-                    <span className="block font-black">{doctor.name}</span>
-                    <span className="mt-1 block text-sm text-muted-foreground">{doctor.specialty}</span>
-                    <span className="mt-3 block text-sm font-bold text-primary">{doctor.next}</span>
+                  <span className="flex w-full items-center gap-3">
+                    <img src={doctor.image} alt={doctor.name} width={72} height={72} className="size-16 shrink-0 rounded-2xl object-cover" />
+                    <span className="min-w-0">
+                      <span className="block font-black">{doctor.name}</span>
+                      <span className="mt-1 block text-sm text-muted-foreground">{doctor.specialty}</span>
+                      <span className="mt-3 block text-sm font-bold text-primary">Preview: {getDoctorAppointmentDate(doctor).toLocaleString([], { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}</span>
+                    </span>
                   </span>
                 </Button>
               ))}
@@ -909,7 +968,7 @@ function UniStretchApp() {
             </div>
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <Button variant="hero" onClick={handleBooking} disabled={bookingMutation.isPending}>
-                <CalendarCheck className="size-4" /> Confirm appointment
+                <CalendarCheck className="size-4" /> Save appointment request
               </Button>
               {bookingMessage ? <p className="text-sm font-semibold text-primary">{bookingMessage}</p> : null}
             </div>
@@ -1015,6 +1074,32 @@ function UniStretchApp() {
           </Button>
         ))}
       </nav>
+
+      <FirstLoginTour userId={user?.id} onNavigate={openTab} />
+
+      <Dialog open={Boolean(selectedStretchVideo)} onOpenChange={(open) => { if (!open) setSelectedStretchVideoIndex(null); }}>
+        <DialogContent className="max-h-[88vh] overflow-y-auto rounded-3xl border-border bg-card sm:max-w-4xl">
+          <DialogHeader>
+            <DialogTitle>{selectedStretchVideo?.title ?? "Stretch details"}</DialogTitle>
+            <DialogDescription>{selectedStretchVideo?.description}</DialogDescription>
+          </DialogHeader>
+          {selectedStretchVideo ? (
+            <div className="space-y-5">
+              <div className="aspect-video overflow-hidden rounded-2xl bg-muted">
+                <iframe
+                  className="h-full w-full"
+                  src={`https://www.youtube-nocookie.com/embed/${selectedStretchVideo.youtubeId}`}
+                  title={`${selectedStretchVideo.title} video details`}
+                  loading="lazy"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  allowFullScreen
+                />
+              </div>
+              <StretchStepGuide key={selectedStretchVideoIndex} initialIndex={selectedStretchVideo.guideIndex} showSelector={false} />
+            </div>
+          ) : null}
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={Boolean(selectedReward)} onOpenChange={(open) => { if (!open) setSelectedReward(null); }}>
         <DialogContent className="rounded-3xl border-border bg-card">
