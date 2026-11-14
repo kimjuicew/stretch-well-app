@@ -11,3 +11,5 @@
 - [ ] Add and verify a skippable four-screen first-login tour.
 - [ ] Move illustrated guides into video details, retain filtering, and add two verified stretch clips.
 - [ ] Add the three supplied doctor photos to selectable doctor profiles and verify booking controls.
+- [ ] Start the sitting timer at zero on a fresh visit and verify its reminder flow.
+- [ ] Enable true closed-app phone reminders when a push-notification service and credentials are available.

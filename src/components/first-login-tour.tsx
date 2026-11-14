@@ -8,28 +8,34 @@ export type AppTab = "home" | "stretch" | "booking" | "profile";
 const steps = [
   { tab: "home", icon: House, title: "Make room for a little movement", text: "Check your sitting timer, take a stretch break, and watch your points and daily streak grow." },
   { tab: "stretch", icon: Activity, title: "Find your feel-good stretch", text: "Filter by body area. Open Details for pictures of each step, or start an exercise and finish its timer to earn 10 points." },
-  { tab: "booking", icon: Stethoscope, title: "Meet your care team", text: "Choose a doctor profile, add a note about how you feel, and confirm your online appointment." },
-  { tab: "profile", icon: UserRound, title: "Set a rhythm that suits you", text: "Choose your reminder interval and leave a star rating or suggestion whenever you like." },
+  { tab: "booking", icon: Stethoscope, title: "Meet your care team", text: "Choose a doctor, pick an available date and time, and book an in-person appointment." },
+  { tab: "profile", icon: UserRound, title: "Set a rhythm that suits you", text: "Adjust your reminder, sound and language settings, replay this tour, or leave feedback." },
 ] satisfies { tab: AppTab; icon: typeof House; title: string; text: string }[];
 
-export function FirstLoginTour({ userId, onNavigate }: { userId: string | undefined; onNavigate: (tab: AppTab) => void }) {
+export function FirstLoginTour({ userId, onNavigate, forceOpen = false, replayToken = 0, onClose }: { userId: string | undefined; onNavigate: (tab: AppTab) => void; forceOpen?: boolean; replayToken?: number; onClose?: () => void }) {
   const [stepIndex, setStepIndex] = useState<number | null>(null);
 
   useEffect(() => {
     setStepIndex(null);
     if (!userId) return;
+    if (forceOpen) {
+      setStepIndex(0);
+      onNavigate("home");
+      return;
+    }
     try {
       if (window.localStorage.getItem(`unistretch:tour:v1:${userId}`) === "done") return;
     } catch { /* The tour still works when browser storage is unavailable. */ }
     setStepIndex(0);
     onNavigate("home");
-  }, [userId, onNavigate]);
+  }, [userId, onNavigate, forceOpen, replayToken]);
 
   function finish() {
     if (userId) {
       try { window.localStorage.setItem(`unistretch:tour:v1:${userId}`, "done"); } catch { /* Storage may be disabled. */ }
     }
     setStepIndex(null);
+    onClose?.();
   }
 
   function move(index: number) {

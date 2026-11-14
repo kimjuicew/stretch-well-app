@@ -174,6 +174,61 @@
     letter-spacing: 0;
   }
 
+@keyframes streak-flicker {
+  0%, 100% {
+    transform: rotate(-4deg) scale(0.96);
+    filter: drop-shadow(0 0 0.1rem rgb(220 38 38 / 0.45));
+  }
+  50% {
+    transform: rotate(4deg) scale(1.1);
+    filter: drop-shadow(0 0 0.65rem rgb(249 115 22 / 0.8));
+  }
+}
+
+@keyframes streak-fill-in {
+  from { transform: scaleX(0.25); transform-origin: left; }
+  to { transform: scaleX(1); transform-origin: left; }
+}
+
+@keyframes streak-burst {
+  0% { opacity: 0; transform: scale(0.25) rotate(-25deg); }
+  25% { opacity: 1; }
+  100% { opacity: 0; transform: scale(1.5) rotate(25deg); }
+}
+
+.streak-flame {
+  animation: streak-flicker 0.9s ease-in-out infinite;
+}
+
+.streak-meter-fill {
+  background: linear-gradient(90deg, #facc15, #fb923c 55%, #ef4444);
+  box-shadow: 0 0 0.85rem rgb(239 68 68 / 0.65);
+  animation: streak-fill-in 850ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.streak-burst::before,
+.streak-burst::after {
+  position: absolute;
+  inset: 12%;
+  content: "";
+  border: 3px solid rgb(249 115 22 / 0.7);
+  border-radius: 9999px;
+  animation: streak-burst 1.3s ease-out infinite;
+}
+
+.streak-burst::after {
+  animation-delay: 350ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .streak-flame,
+  .streak-meter-fill,
+  .streak-burst::before,
+  .streak-burst::after {
+    animation: none;
+  }
+}
+
   button,
   input,
   textarea,
