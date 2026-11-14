@@ -56,21 +56,25 @@ export function StretchStepGuide({ initialIndex = 0, showSelector = true }: { in
           ))}
         </div>}
       </div>
-      <ol aria-label={`${guide.name} exercise steps`} className="grid gap-4 md:grid-cols-3">
-        {guide.steps.map((step, index) => (
-          <li key={step.title} className="overflow-hidden rounded-2xl border border-border bg-card shadow-[var(--shadow-card)]">
-            <div className="relative aspect-square overflow-hidden bg-muted">
-              <img src={step.image} alt={step.alt} width={512} height={512} loading="lazy" className="h-full w-full object-contain" />
-              <span className="absolute left-3 top-3 flex size-9 items-center justify-center rounded-full bg-primary text-base font-black text-primary-foreground" aria-label={`Step ${index + 1}`}>{index + 1}</span>
-            </div>
-            <div className="space-y-2 p-5">
+      <div className="overflow-hidden rounded-3xl border border-border bg-card shadow-[var(--shadow-card)]">
+        <div className="grid grid-cols-3 gap-1 bg-border p-1" aria-label={`${guide.name} illustrated steps`}>
+          {guide.steps.map((step, index) => (
+            <figure key={step.title} className="relative aspect-[4/3] overflow-hidden rounded-xl bg-muted">
+              <img src={step.image} alt={step.alt} width={512} height={512} loading="lazy" className="h-full w-full object-cover" />
+              <figcaption className="absolute left-2 top-2 flex size-7 items-center justify-center rounded-full bg-primary text-sm font-black text-primary-foreground" aria-label={`Step ${index + 1}`}>{index + 1}</figcaption>
+            </figure>
+          ))}
+        </div>
+        <ol aria-label={`${guide.name} exercise steps`} className="grid gap-0 sm:grid-cols-3">
+          {guide.steps.map((step) => (
+            <li key={step.title} className="space-y-2 border-t border-border p-4 sm:border-r sm:last:border-r-0">
               <p className="flex items-center gap-1.5 text-xs font-bold text-primary"><Clock3 className="size-3.5 shrink-0" />{step.time}</p>
-              <h4 className="text-lg font-extrabold">{step.title}</h4>
-              <p className="text-sm leading-6 text-muted-foreground">{step.text}</p>
-            </div>
-          </li>
-        ))}
-      </ol>
+              <h4 className="font-extrabold">{step.title}</h4>
+              <p className="text-sm leading-5 text-muted-foreground">{step.text}</p>
+            </li>
+          ))}
+        </ol>
+      </div>
       <p className="mt-3 text-sm leading-6 text-muted-foreground">Move slowly and breathe normally. You should feel a gentle stretch, not pain. Stop if you feel pain, tingling or dizziness.</p>
     </section>
   );
